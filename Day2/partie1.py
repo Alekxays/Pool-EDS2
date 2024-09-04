@@ -33,25 +33,3 @@ def read_all_lines(filename: str) -> (list[str],list[str]):
         lines = file.readlines()
     alternates_lines = lines[::2]
     return lines, alternates_lines
-    
-
-if __name__ == "__main__":
-    file = "Day2/assets/random_phrases.txt"
-    print(read_one_line(file))
-
-    dossier = "Day2"
-    file_name = "Test.txt"
-    path_file = f"{dossier}/{file_name}"
-    text = "Hello World"
-    
-    write_text(path_file, text)
-    print(read_one_line(file_name))
-
-    nb_caracteres = 100 
-
-    copy_characters(file, path_file, nb_caracteres)
-    print(f"Les {nb_caracteres} premiers caractères de {file} ont été copiés dans {path_file}.")
-
-    lines, alternate_lines = read_all_lines(file)
-    print(lines)
-    print(alternate_lines)

@@ -12,9 +12,4 @@ def do_op(a, b, c):
         return operations.basic_ops.safe_divide(a, b)
     else:
         return "Opération non reconnue"
-    
-print(do_op(5, 5, '+'))
-print(do_op(5, 5, '-'))
-print(do_op(5, 5, '*'))
-print(do_op(5, 5, '/'))
 
