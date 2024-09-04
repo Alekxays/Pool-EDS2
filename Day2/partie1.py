@@ -1,7 +1,11 @@
+# Exercice 1:
+
 def read_one_line(filename: str) -> str:
     with open(filename, 'r') as file:
             first_line = file.readline()
             return first_line.strip() 
+    
+# Exercice 2:
 
 def write_text(filename: str, text: str):
     try:
@@ -9,6 +13,8 @@ def write_text(filename: str, text: str):
             file.write(text)
     except:
         print("An error occured while writing the file")
+
+# Exercice 3:
 
 def copy_characters(input_file: str, output_file: str, nb: int):
     try:
@@ -19,6 +25,8 @@ def copy_characters(input_file: str, output_file: str, nb: int):
             outfile.write('\n' + content)
     except:
         print("An error occured while copying the file")
+
+# Exercice 4:
 
 def read_all_lines(filename: str) -> (list[str],list[str]):
     with open(filename, 'r') as file:
@@ -31,7 +39,7 @@ if __name__ == "__main__":
     file = "Day2/assets/random_phrases.txt"
     print(read_one_line(file))
 
-    dossier = "Day2/Part 1/"
+    dossier = "Day2"
     file_name = "Test.txt"
     path_file = f"{dossier}/{file_name}"
     text = "Hello World"

@@ -1,7 +1,9 @@
+# Exercice 1
+
 def multiply(a, b):
     return a * b
 
-print(multiply(5, 5))
+# Exercice 2
 
 def compare(a,b):
     if a > b:
@@ -11,18 +13,14 @@ def compare(a,b):
     else:
         return "Les deux nombres sont égaux"
     
-print(compare(5, 5))
-print(compare(5, 10))
-print(compare(10, 5))
+# Exercice 3
 
 def couting(x) :
     for i in range(1, x+1, 2):
         print(i, end=' ')
     return
 
-print(couting(5))
-print(couting(10))
-print(couting(15))
+# Exercice 4
 
 def ask_user():
     mot = input("Entrer un mot :")
@@ -33,7 +31,7 @@ def ask_user():
         if (mot == "exit") :
             break
 
-ask_user()
+# Exercice 5
 
 def safe_divide(a,b):    
     try:
@@ -41,11 +39,8 @@ def safe_divide(a,b):
     except ZeroDivisionError:
         return "Division par zéro impossible"
     
-print(safe_divide(5, 0))
-print(safe_divide(5, 5))
+# Exercice 6
 
 def display_square(x, y):
     for _ in range(x):
         print(x*y)
-
-display_square(5, "a")

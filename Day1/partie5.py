@@ -1,5 +1,7 @@
 import sys
 
+# Exercice 1
+
 def list_discovery() -> list:
     args = sys.argv[1:7]
     
@@ -13,6 +15,8 @@ def list_discovery() -> list:
     numbers.append(int(args[5]))  # Convert the sixth argument to int before appending
     return numbers
 
+# Exercice 2
+
 def dict_creation() -> dict:
     args = sys.argv[1:]
     return dict(zip(args[::2], args[1::2]))
@@ -22,11 +26,15 @@ def dict_display(dico: dict):
     print("\n".join(dico.values()))
     print("\n".join(f"Key: {k} - Value: {v}" for k, v in dico.items()))
 
+# Exercice 3
+
 def tuple_discovery(a, b, c, d) -> tuple:
     return (d, c, b, a)
 
 def tuple_display(tpl: tuple):
     print("\n".join(map(str, tpl)))
+
+# Exercice 4
 
 def set_discovery(l1: list, l2: list) -> tuple:
     set1 = set(l1)
@@ -38,6 +46,8 @@ def set_discovery(l1: list, l2: list) -> tuple:
     symmetric_difference_set = set1 ^ set2  # or set1.symmetric_difference(set2)
     
     return (set1, set2, union_set, intersection_set, difference_set, symmetric_difference_set)
+
+# Exercice 5
 
 def power_via_comprehension(numbers: list[int]) -> list[int]:
     return [x**2 if x < 0 else -x for x in numbers]
