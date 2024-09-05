@@ -12,7 +12,7 @@ def get_one_book() -> dict:
     first_book = soup.find('article', class_='product_pod')
 
     title = first_book.h3.a['title']
-    rating_class = first_book.p['class'][1]  # Rating is in the class attribute
+    rating_class = first_book.p['class'][1]
     rating_map = {
         'One': 1, 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5
     }
