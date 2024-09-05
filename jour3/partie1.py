@@ -1,4 +1,3 @@
-        'codes': ','.join(country_codes),
 import requests
 
 # Exercice 1 :

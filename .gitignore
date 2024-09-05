@@ -92,3 +92,6 @@ dmypy.json
 
 # macOS stuff
 .DS_Store
+
+data/
+venv/
