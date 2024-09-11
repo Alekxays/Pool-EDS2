@@ -1,11 +1,11 @@
 # Exercice 1
 
-def multiply(a, b):
+def multiply(a: int, b: int) -> int:
     return a * b
 
 # Exercice 2
 
-def compare(a,b):
+def compare(a: int, b: int):
     if a > b:
         return "Le premier nombre est plus grand que le second"
     elif a < b:
@@ -15,7 +15,7 @@ def compare(a,b):
     
 # Exercice 3
 
-def couting(x) :
+def counting(x: int):
     for i in range(1, x+1, 2):
         print(i, end=' ')
     return
@@ -23,7 +23,7 @@ def couting(x) :
 # Exercice 4
 
 def ask_user():
-    mot = input("Entrer un mot :")
+    mot = input("")
     print(f"Vous avez entré : {mot}")
     while (mot !="exit"):
         mot = input("Entrer un mot :")
@@ -33,11 +33,12 @@ def ask_user():
 
 # Exercice 5
 
-def safe_divide(a,b):    
+def safe_divide(a: int, b: int) -> float | None:
     try:
-        return a/b
+        result = a / b
+        return result
     except ZeroDivisionError:
-        return "Division par zéro impossible"
+        return None
     
 # Exercice 6
 

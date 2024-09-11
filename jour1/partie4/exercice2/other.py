@@ -1,5 +1,5 @@
 def display_message():
-    print("Je suis la fonction display_message du module other")
+    print("Je suis la fonction display_message venant du module other")
     return
 
 if __name__ == "__main__":

@@ -1,8 +1,9 @@
 def multiply(a, b):
     return a * b
 
-def safe_divide(a,b):    
+def safe_divide(a: int, b: int) -> float | None:
     try:
-        return a/b
+        result = a / b
+        return result
     except ZeroDivisionError:
-        return "Division par zéro impossible"
+        return None

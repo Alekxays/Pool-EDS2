@@ -12,7 +12,7 @@ def list_discovery() -> list:
     numbers.sort(reverse=True)
     numbers.pop()
     print(f"Numbers has {len(numbers)} elements and the sum of them all is {sum(numbers)}.")
-    numbers.append(int(args[5]))  # Convert the sixth argument to int before appending
+    numbers.append(int(args[5]))
     return numbers
 
 # Exercice 2
@@ -39,12 +39,10 @@ def tuple_display(tpl: tuple):
 def set_discovery(l1: list, l2: list) -> tuple:
     set1 = set(l1)
     set2 = set(l2)
-    
-    union_set = set1 | set2  # or set1.union(set2)
-    intersection_set = set1 & set2  # or set1.intersection(set2)
-    difference_set = set1 - set2  # or set1.difference(set2)
-    symmetric_difference_set = set1 ^ set2  # or set1.symmetric_difference(set2)
-    
+    union_set = set1 | set2 
+    intersection_set = set1 & set2 
+    difference_set = set1 - set2
+    symmetric_difference_set = set1 ^ set2
     return (set1, set2, union_set, intersection_set, difference_set, symmetric_difference_set)
 
 # Exercice 5
