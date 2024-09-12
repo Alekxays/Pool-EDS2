@@ -72,22 +72,31 @@ def create_pivot_table_advanced(df: pd.DataFrame) -> pd.DataFrame:
     pivot_df = pd.pivot_table(
         df,
         values=['quantity', 'total_price'],
-        index=['year', 'region'],
-        columns='category',
+        index=['category'],
         aggfunc={
             'quantity': ['count', 'mean', 'sum'],
             'total_price': ['mean', 'sum']
         },
         margins=False
-    ).round(2)
-    pivot_df = pivot_df.sort_index(axis=1)
+    )
+    pivot_df.columns = pd.MultiIndex.from_tuples([
+        (cat, value, agg) for cat in pivot_df.columns.levels[0]
+        for value in pivot_df.columns.levels[1]
+        for agg in pivot_df.columns.levels[2]
+    ])
+    pivot_df = pivot_df.sort_index(axis=1, level=[0, 1, 2])
+    pivot_df.reset_index(inplace=True)
     return pivot_df
 
 # Exercice 8 :
 
 def avg_price_rolling_window(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.sort_values(by='timestamp')
+    df.set_index('timestamp', inplace=True)
     df['rolling_avg'] = df['quantity'].rolling(window=7, min_periods=3).mean().round(2)
+    df.reset_index(inplace=True)
     return df
+
 
 
 # Exercice 9 :

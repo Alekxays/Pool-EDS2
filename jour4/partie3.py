@@ -42,11 +42,6 @@ def prizes_per_category_filtered(client: MongoClient, nb_laureates: int) -> list
         {"$group": {
             "_id": "$category",
             "prizes": {"$sum": 1}
-        }},
-        {"$project": {
-            "_id": 0,
-            "category": "$_id",
-            "prizes": "$prizes"
         }}
     ]
     results = client["nobel"]["prizes"].aggregate(pipeline)
@@ -63,18 +58,14 @@ def prizes_per_category(client: MongoClient, nb_laureates: int) -> list[dict]:
             "_id": "$category",
             "prizes": {"$sum": 1}
         }},
-        {"$project": {
-            "_id": 0,
-            "category": "$_id",
-            "prizes": "$prizes"
-        }},
         {"$sort": {
             "prizes": -1,
-            "category": 1
+            "_id": 1
         }}
     ]
     results = client["nobel"]["prizes"].aggregate(pipeline)
     return list(results)
+
 
 # Exercice 5 :  
 
@@ -86,7 +77,7 @@ def laureates_per_birth_country_complex(client: MongoClient) -> list[dict]:
                     {
                         "$and": [
                             {"died": {"$ne": "0000-00-00"}},
-                            {"$expr": {"$eq": [{"$substr": ["$died", 0, 10]}, "$bornCountry"]}}
+                            {"$expr": {"$eq": ["$diedCountry", "$bornCountry"]}}
                         ]
                     },
                     {"died": "0000-00-00"}
@@ -96,19 +87,18 @@ def laureates_per_birth_country_complex(client: MongoClient) -> list[dict]:
         {
             "$group": {
                 "_id": "$bornCountry",
-                "count": {"$sum": 1}
+                "laureates": {"$sum": 1}
             }
         },
         {
             "$project": {
-                "_id": 0,
-                "birthCountry": "$_id",
-                "count": 1
+                "_id": 1,
+                "laureates": 1
             }
         },
         {
             "$sort": {
-                "birthCountry": 1
+                "_id": 1
             }
         }
     ]

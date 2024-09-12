@@ -12,7 +12,7 @@ def create_bs_obj(file: str) -> BeautifulSoup:
 def find_title(file: str) -> str:
     soup = create_bs_obj(file)
     title_tag = soup.title
-    return str(title_tag.string) if title_tag else ''
+    return str(title_tag) if title_tag else ''
 
 # Exercice 2 :
 

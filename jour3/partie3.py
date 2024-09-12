@@ -36,46 +36,68 @@ def download_images(url: str, folder: str, max: int | None = None):
     for img in img_tags:
         img_src = img.get('src')
         if img_src and not img_src.startswith('/static/'):
+            img_filename = os.path.basename(img_src.split('?')[0])
+            valid_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.svg')
+            if not img_filename.lower().endswith(valid_extensions):
+                continue
             if img_src.startswith('//'):
                 img_url = 'https:' + img_src
             elif img_src.startswith('http'):
                 img_url = img_src
             else:
-                img_url = f"{base_url}{img_src}"
+                img_url = f"https:{img_src}" if img_src.startswith('/w/') else f"{base_url}{img_src}"
             try:
                 img_response = requests.get(img_url, headers={'User-Agent': 'Mozilla/5.0'})
                 img_response.raise_for_status()
-                img_filename = os.path.join(folder, os.path.basename(img_url))
-                with open(img_filename, 'wb') as f:
+                img_filepath = os.path.join(folder, img_filename)
+                with open(img_filepath, 'wb') as f:
                     f.write(img_response.content)
                 downloaded_count += 1
-                print(f"Image téléchargée : {img_filename}")
+                print(f"Image téléchargée : {img_filepath}")
                 if max is not None and downloaded_count >= max:
                     break
                 time.sleep(1)
             except Exception as e:
                 print(f"Échec du téléchargement de {img_url} : {e}")
 
+
 # Exercice 3 :
 
 def recursive_navigation(url: str, nb: int) -> list[str]:
     visited_links = []
+    headers = {'User-Agent': 'Mozilla/5.0'}
     while nb > 0:
         visited_links.append(url)
         html = fetch_html(url)
         soup = BeautifulSoup(html, 'html.parser')
-        paragraphs = soup.find_all('p')
+        content_div = soup.find(id='mw-content-text')
+        if not content_div:
+            print(f"Contenu principal introuvable à l'URL : {url}")
+            break
+        paragraphs = content_div.find_all('p', recursive=False)
+        if not paragraphs:
+            print(f"Aucun paragraphe trouvé dans le contenu principal à l'URL : {url}")
+            break
+
         link_found = False
         for paragraph in paragraphs:
-            links = paragraph.find_all('a', href=True)
-            wiki_links = [a['href'] for a in links if a['href'].startswith('/wiki')]
-            if len(wiki_links) >= nb:
-                next_link = wiki_links[nb - 1]
-                url = f"https://fr.wikipedia.org{next_link}"
-                link_found = True
+            for element in paragraph.find_all(['span', 'small', 'sup']):
+                element.decompose()
+            for link in paragraph.find_all('a', href=True):
+                href = link['href']
+                if href.startswith('/wiki/') and not ':' in href and not href.startswith('/wiki/Wikip%C3%A9dia'):
+                    next_url = f"https://fr.wikipedia.org{href}"
+                    if next_url not in visited_links:
+                        url = next_url
+                        link_found = True
+                        break
+            if link_found:
                 break
+
         if not link_found:
-            print(f"Aucun lien trouvé pour {url} avec nb = {nb}")
+            print(f"Aucun lien valide trouvé sur la page : {url}")
             break
+
         nb -= 1
+
     return visited_links

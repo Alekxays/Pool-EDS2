@@ -9,9 +9,9 @@ def add_laureate(client: MongoClient, laureate: dict) -> ObjectId:
 
 # Exercice 2 :
 
-def add_prizes(client: MongoClient, prize: dict) -> list[ObjectId]:
-    result = client["nobel"]["prizes"].insert_one(prize)
-    return result.inserted_id
+def add_prizes(client: MongoClient, prizes: list) -> list:
+    result = client["nobel"]["prizes"].insert_many(prizes)
+    return result.inserted_ids
 
 # Exercice 3 :
 

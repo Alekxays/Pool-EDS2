@@ -7,11 +7,11 @@ def multiply(a: int, b: int) -> int:
 
 def compare(a: int, b: int):
     if a > b:
-        return "Le premier nombre est plus grand que le second"
+        return print("Le premier nombre est plus grand que le second")
     elif a < b:
-        return "Le premier nombre est plus petit que le second"
+        return print("Le premier nombre est plus petit que le second")
     else:
-        return "Les deux nombres sont égaux"
+        return print("Les deux nombres sont égaux")
     
 
 # Exercice 3 :

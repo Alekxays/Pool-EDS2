@@ -23,17 +23,18 @@ def get_prize_categories(client: MongoClient) -> list[str]:
 def get_category_laureates(client: MongoClient, category: str) -> list[dict]:
     results = client["nobel"]["laureates"].find(
         {"prizes.category": category},
-        {"_id": 0, "firstname": 1, "surname": 1, "prizes": 1}
+        {"_id": 0, "firstname": 1, "surname": 1, "prizes.category": 1}
     )
     laureates = []
     for result in results:
-        filtered_prizes = [prize for prize in result.get("prizes", []) if prize.get("category") == category]
+        prizes = [{"category": prize.get("category")} for prize in result.get("prizes", [])]
         laureates.append({
             "firstname": result.get("firstname"),
             "surname": result.get("surname"),
-            "prizes": filtered_prizes
+            "prizes": prizes
         })
     return laureates
+
 
 def get_country_laureates(client: MongoClient, country: str) -> list[dict]:
     regex = f".*{country}.*"
@@ -53,12 +54,12 @@ def get_shared_prizes(client: MongoClient) -> list[dict]:
     pipeline = [
         {
             "$match": {
+                "laureates": {"$exists": True, "$ne": []},
                 "$expr": {"$gt": [{"$size": "$laureates"}, 1]}
             }
         },
         {
             "$project": {
-                "_id": 0,
                 "year": 1,
                 "category": 1,
                 "laureates": 1
@@ -68,36 +69,48 @@ def get_shared_prizes(client: MongoClient) -> list[dict]:
     results = list(client["nobel"]["prizes"].aggregate(pipeline))
     return results
 
+
 def get_shared_prizes_common(client: MongoClient) -> list[dict]:
     pipeline = [
         {
             "$match": {
-                "laureates": {"$exists": True, "$ne": None},
                 "$expr": {"$eq": [{"$size": "$laureates"}, 2]}
             }
         },
         {
             "$project": {
-                "_id": 0,
                 "year": 1,
                 "category": 1,
                 "laureates": 1,
-                "motivation": "$laureates.motivation"
+                "motivation_list": {
+                    "$map": {
+                        "input": "$laureates",
+                        "as": "laureate",
+                        "in": "$$laureate.motivation"
+                    }
+                }
+            }
+        },
+        {
+            "$addFields": {
+                "unique_motivations": {
+                    "$size": {
+                        "$setUnion": ["$motivation_list"]
+                    }
+                }
             }
         },
         {
             "$match": {
-                "motivation": {
-                    "$size": 1
-                }
+                "unique_motivations": 1
             }
         }
     ]
-    results = list(client["nobel"]["laureates"].aggregate(pipeline))
+    results = list(client["nobel"]["prizes"].aggregate(pipeline))
     return results
 
-# Exercice 6 :
 
+# Exercice 6 :
 def get_laureates_information_sorted(client: MongoClient) -> list[dict]:
     results = client["nobel"]["laureates"].find(
         {},
@@ -110,9 +123,16 @@ def get_laureates_information_sorted(client: MongoClient) -> list[dict]:
         }
     )
     laureates = list(results)
+    def clean_country(country: str) -> str:
+        country = country.lower()
+        if country.startswith('the '):
+            return country[4:]
+        return country
     sorted_laureates = sorted(
         laureates,
-        key=lambda x: (x.get("born", ""), x.get("bornCountry", ""))
+        key=lambda x: (
+            clean_country(x.get("bornCountry", "")),
+            x.get("born", "")
+        )
     )
     return sorted_laureates
-

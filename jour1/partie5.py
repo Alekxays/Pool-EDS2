@@ -49,38 +49,3 @@ def set_discovery(l1: list, l2: list) -> tuple:
 
 def power_via_comprehension(numbers: list[int]) -> list[int]:
     return [x**2 if x < 0 else -x for x in numbers]
-
-if __name__ == "__main__":
-    try:
-        print(list_discovery())
-    except ValueError as e:
-        print(f"Error: {e}")
-    
-    dico = dict_creation()
-    dict_display(dico)
-    
-    tpl = tuple_discovery(1, 2, 3, 4)
-    tuple_display(tpl)
-    
-    try:
-        tpl[0] = 10
-    except TypeError as e:
-        print(f"Error: {e}")
-    
-    l1 = [1, 2, 3, 4]
-    l2 = [3, 4, 5, 6]
-    sets = set_discovery(l1, l2)
-    print("Set1:", sets[0])
-    print("Set2:", sets[1])
-    print("Union:", sets[2])
-    print("Intersection:", sets[3])
-    print("Difference:", sets[4])
-    print("Symmetric Difference:", sets[5])
-    set1 = sets[0]
-    set1.add(1)
-    set1.add(2)
-    print("Set1 after adding duplicates:", set1)
-    
-    numbers = [-3, -2, -1, 0, 1, 2, 3]
-    print("Original numbers:", numbers)
-    print("Transformed numbers:", power_via_comprehension(numbers))

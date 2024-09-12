@@ -3,7 +3,7 @@
 def read_one_line(filename: str) -> str:
     with open(filename, 'r') as file:
         first_line = file.readline()
-        return first_line.rstrip()
+        return first_line.rstrip() + '\n'
     
 # Exercice 2:
 

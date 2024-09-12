@@ -2,9 +2,9 @@ import requests
 
 # Exercice 1 :
 
-def get_request(url: str) -> (int,str):
+def get_request(url: str) -> (int, any):
     response = requests.get(url)
-    return response.status_code, response.text
+    return response.status_code, response.json()
 
 # Exercice 2 :
 
@@ -25,11 +25,11 @@ def handle_request_status(url: str) -> int | str:
         response.raise_for_status()
         return response.status_code
     except requests.exceptions.HTTPError as http_err:
-        return f"HTTP error occurred: {http_err}"
+        return {http_err}
     except requests.exceptions.RequestException as req_err:
-        return f"Request error occurred: {req_err}"
+        return {req_err}
     except Exception as err:
-        return f"Other error occurred: {err}"
+        return {err}
 
 # Exercice 4 :
 

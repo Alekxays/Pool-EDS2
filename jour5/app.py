@@ -1,10 +1,13 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from pymongo import MongoClient
-from bson.json_util import dumps
+from bson.objectid import ObjectId
 from collections import defaultdict
 from datetime import datetime
+import logging
 
 app = FastAPI()
+
+client = MongoClient("localhost", 27017)
 
 # Partie 2 :
 
@@ -12,27 +15,53 @@ app = FastAPI()
 def hello():
     return {"message": "Hello world, this is my first web API!"}
 
-client = MongoClient("localhost", 27017)
-
 @app.get("/laureates")
-def laureates(categories: list[str] = Query(None), awarded_year: int = Query(None)):
+def get_laureates(
+    categories: list[str] = Query(None),
+    awarded_year: int = Query(None),
+):
     try:
         query = {}
-        if categories:
-            query["prizes.category"] = {"$in": categories}
-        if awarded_year:
-            query["prizes.year"] = awarded_year
-        laureates_cursor = client["nobel"]["laureates"].find(query).sort([
-            ("prizes.year", 1),
-            ("surname", 1)
-        ])
-        laureates_json = dumps(laureates_cursor)
-        return {"laureates": laureates_json}
+        if categories and awarded_year:
+            query["prizes"] = {
+                "$elemMatch": {
+                    "category": {"$in": [c.lower() for c in categories]},
+                    "year": str(awarded_year)
+                }
+            }
+        elif categories:
+            query["prizes"] = {
+                "$elemMatch": {
+                    "category": {"$in": [c.lower() for c in categories]}
+                }
+            }
+        elif awarded_year:
+            query["prizes"] = {
+                "$elemMatch": {
+                    "year": str(awarded_year)
+                }
+            }
+        laureates_cursor = client["nobel"]["laureates"].find(query)
+        laureates_list = []
+        for laureate in laureates_cursor:
+            laureate['_id'] = {'$oid': str(laureate['_id'])}
+            laureates_list.append(laureate)
+        def get_sort_key(laureate):
+            earliest_year = min(int(prize['year']) for prize in laureate['prizes'])
+            surname = laureate.get('surname', '').lower()
+            return (earliest_year, surname)
+        laureates_list.sort(key=get_sort_key)
+        return laureates_list
     except Exception as e:
+        logging.error(f"Error fetching laureates: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while fetching laureates.")
 
 @app.get("/prizes")
-def prizes(before: int = Query(None), after: int = Query(None), awarded: int = Query(None)):
+def get_prizes(
+    before: int = Query(None),
+    after: int = Query(None),
+    awarded: int = Query(None),
+):
     try:
         query = {}
         if awarded is not None:
@@ -40,17 +69,23 @@ def prizes(before: int = Query(None), after: int = Query(None), awarded: int = Q
                 query["laureates"] = {"$exists": True, "$ne": []}
             elif awarded == 0:
                 query["laureates"] = {"$exists": False}
-        if before:
-            query["year"] = {"$lte": before}
-        if after:
-            query["year"] = {"$gte": after}
+        if before is not None:
+            query.setdefault("year", {})
+            query["year"]["$lte"] = str(before)
+        if after is not None:
+            query.setdefault("year", {})
+            query["year"]["$gte"] = str(after)
         prizes_cursor = client["nobel"]["prizes"].find(query).sort([
             ("year", 1),
             ("category", -1)
         ])
-        prizes_json = dumps(prizes_cursor)
-        return {"prizes": prizes_json}
+        prizes_list = []
+        for prize in prizes_cursor:
+            prize['_id'] = {'$oid': str(prize['_id'])}
+            prizes_list.append(prize)
+        return prizes_list
     except Exception as e:
+        logging.error(f"Error fetching prizes: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while fetching Nobel prizes.")
 
 # Partie 3 :
@@ -80,12 +115,11 @@ def prizes_statistics(
             total_prizes[category] += 1
             laureates_count[category] += len(prize.get("laureates", []))
         statistics = {
-            "total_prizes": {category: total for category, total in total_prizes.items()},
-            "average_laureates_per_prize": {
-                category: round(laureates_count[category] / total_prizes[category], 2) 
-                if total_prizes[category] > 0 else 0 
-                for category in total_prizes
+            category: {
+                "total_prizes": total_prizes[category],
+                "average_laureates": round(laureates_count[category] / total_prizes[category], 2)
             }
+            for category in total_prizes
         }
         return statistics
     except Exception as e:
@@ -121,13 +155,12 @@ def laureates_statistics(
                     age_at_award = year - birth_date.year
                     total_age[category].append(age_at_award)
         statistics = {
-            "total_laureates": {category: total for category, total in total_laureates.items()},
-            "average_age_at_award": {
-                category: round(sum(ages) / len(ages), 2) 
-                if ages else None
-                for category, ages in total_age.items()
-            },
-            "prize_years": {category: sorted(list(years)) for category, years in prize_years.items()}
+            category: {
+                "total_laureates": total_laureates[category],
+                "average_age": round(sum(total_age[category]) / len(total_age[category]), 2) if total_age[category] else None,
+                "years": sorted(list(prize_years[category]))
+            }
+            for category in total_laureates
         }
         return statistics
     except Exception as e:
