@@ -15,8 +15,8 @@ def retrieve_multi_index_data(df: pd.DataFrame, year: int, region: str) -> pd.Da
 
 def multi_index_aggregate(df: pd.DataFrame) -> pd.DataFrame:
     agg_df = df.groupby(['year', 'region']).agg(
-        total_products_sold=('quantity', 'sum'),
-        total_sales=('total_price', 'sum')
+        quantity=('quantity', 'sum'),
+        total_price=('total_price', 'sum')
     ).round(2)
     return agg_df
 
@@ -24,8 +24,8 @@ def multi_index_aggregate(df: pd.DataFrame) -> pd.DataFrame:
 
 def columns_multi_index(df: pd.DataFrame) -> pd.DataFrame:
     agg_df = df.groupby(['year', 'region', 'category']).agg(
-        total_products_sold=('quantity', 'sum'),
-        total_sales=('total_price', 'sum')
+        quantity=('quantity', 'sum'),
+        total_price=('total_price', 'sum')
     ).round(2)
     multi_index_df = agg_df.unstack(level='category')
     return multi_index_df
@@ -71,16 +71,16 @@ def create_pivot_table_basic(df: pd.DataFrame) -> pd.DataFrame:
 def create_pivot_table_advanced(df: pd.DataFrame) -> pd.DataFrame:
     pivot_df = pd.pivot_table(
         df,
-        values="quantity",
-        index=["year", "region"],
-        columns="category",
-        aggfunc="sum",
+        values=['quantity', 'total_price'],
+        index=['year', 'region'],
+        columns='category',
+        aggfunc={
+            'quantity': ['count', 'mean', 'sum'],
+            'total_price': ['mean', 'sum']
+        },
         margins=False
-    )
-    quantity_mean = df.groupby(['year', 'region', 'category'])['quantity'].mean()
-    quantity_mean_df = quantity_mean.unstack(level=-1)
-    for category in quantity_mean_df.columns:
-        pivot_df[f'quantity_mean_{category}'] = quantity_mean_df[category]
+    ).round(2)
+    pivot_df = pivot_df.sort_index(axis=1)
     return pivot_df
 
 # Exercice 8 :
@@ -89,8 +89,9 @@ def avg_price_rolling_window(df: pd.DataFrame) -> pd.DataFrame:
     df['rolling_avg'] = df['quantity'].rolling(window=7, min_periods=3).mean().round(2)
     return df
 
+
 # Exercice 9 :
 
 def highlight_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    df['outliers'] = df.apply(lambda row: row['quantity'] > 2.5 * row['rolling_avg'], axis=1)
+    df['highlight'] = df.apply(lambda row: row['quantity'] > 2.5 * row['rolling_avg'], axis=1)
     return df

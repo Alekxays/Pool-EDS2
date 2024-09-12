@@ -18,11 +18,12 @@ def impute_region(df: pd.DataFrame) -> pd.DataFrame:
         'Finland': 'EMEA',
         'Austria': 'EMEA'
     }
-    df['region'] = df.apply(lambda row: country_to_region.get(row['country'], row['region']) 
-    if pd.notna(row['country']) else row['region'], axis=1)
+    df.loc[:, 'region'] = df.apply(
+        lambda row: country_to_region.get(row['country'], row['region']) 
+        if pd.notna(row['country']) else row['region'], axis=1
+    )
     df = df.dropna(subset=['region'])
     df.reset_index(drop=True, inplace=True)
-    df['region'].fillna('Unknown', inplace=True)
     return df
 
 def impute_quantity(df: pd.DataFrame) -> pd.DataFrame:
@@ -66,8 +67,8 @@ def retrieve_quantity_outliers(df: pd.DataFrame) -> pd.DataFrame:
     print(f"Q1: {Q1}, Q3: {Q3}, IQR: {IQR}")
     print(f"Lower Bound: {lower_bound}, Upper Bound: {upper_bound}")
     outliers = df[(df['quantity'] < lower_bound) | (df['quantity'] > upper_bound)]
-    outliers_sorted = outliers.sort_values(by='quantity')
-    return outliers_sorted
+    outliers_sorted = outliers.sort_index()
+    return outliers_sorted.reset_index(drop=True)
 
 def handle_unit_price_outliers(df: pd.DataFrame) -> pd.DataFrame:
     Q1 = df['unit_price'].quantile(0.25)
@@ -79,7 +80,7 @@ def handle_unit_price_outliers(df: pd.DataFrame) -> pd.DataFrame:
         lambda x: min(x, upper_bound) if x > upper_bound else x
     )
     df = df[df['unit_price'] >= lower_bound]
-    df_sorted = df.sort_values(by='unit_price')
+    df_sorted = df.sort_index()
     return df_sorted
 
 # Exercice 4 :

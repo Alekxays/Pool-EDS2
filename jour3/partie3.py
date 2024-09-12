@@ -33,7 +33,6 @@ def download_images(url: str, folder: str, max: int | None = None):
     img_tags = soup.find_all('img')
     base_url = 'https://upload.wikimedia.org'
     downloaded_count = 0
-
     for img in img_tags:
         img_src = img.get('src')
         if img_src and not img_src.startswith('/static/'):
@@ -61,14 +60,12 @@ def download_images(url: str, folder: str, max: int | None = None):
 
 def recursive_navigation(url: str, nb: int) -> list[str]:
     visited_links = []
-    
     while nb > 0:
         visited_links.append(url)
         html = fetch_html(url)
         soup = BeautifulSoup(html, 'html.parser')
         paragraphs = soup.find_all('p')
         link_found = False
-        
         for paragraph in paragraphs:
             links = paragraph.find_all('a', href=True)
             wiki_links = [a['href'] for a in links if a['href'].startswith('/wiki')]
@@ -77,11 +74,8 @@ def recursive_navigation(url: str, nb: int) -> list[str]:
                 url = f"https://fr.wikipedia.org{next_link}"
                 link_found = True
                 break
-        
         if not link_found:
             print(f"Aucun lien trouvé pour {url} avec nb = {nb}")
             break
-        
         nb -= 1
-
     return visited_links

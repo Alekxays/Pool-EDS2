@@ -2,8 +2,8 @@
 
 def read_one_line(filename: str) -> str:
     with open(filename, 'r') as file:
-            first_line = file.readline()
-            return first_line.strip() 
+        first_line = file.readline()
+        return first_line.rstrip()
     
 # Exercice 2:
 
@@ -20,11 +20,12 @@ def copy_characters(input_file: str, output_file: str, nb: int):
     try:
         with open(input_file, 'r') as infile:
             content = infile.read(nb)
-
+        
         with open(output_file, 'a') as outfile:
-            outfile.write('\n' + content)
+            if content or nb == 0:
+                outfile.write(content + '\n')
     except:
-        print("An error occured while copying the file")
+        print("An error occurred while copying the file")
 
 # Exercice 4:
 

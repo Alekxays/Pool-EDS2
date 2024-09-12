@@ -43,7 +43,7 @@ def set_discovery(l1: list, l2: list) -> tuple:
     intersection_set = set1 & set2 
     difference_set = set1 - set2
     symmetric_difference_set = set1 ^ set2
-    return (set1, set2, union_set, intersection_set, difference_set, symmetric_difference_set)
+    return (union_set, intersection_set, difference_set, symmetric_difference_set)
 
 # Exercice 5
 

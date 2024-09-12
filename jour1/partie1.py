@@ -13,23 +13,27 @@ def compare(a: int, b: int):
     else:
         return "Les deux nombres sont égaux"
     
-# Exercice 3
+
+# Exercice 3 :
 
 def counting(x: int):
-    for i in range(1, x+1, 2):
-        print(i, end=' ')
+    result = []
+    for i in range(1, x + 1, 2):
+        result.append(str(i))
+    print(', '.join(result) + ',')
     return
 
 # Exercice 4
 
 def ask_user():
-    mot = input("")
+    mot = input()
     print(f"Vous avez entré : {mot}")
     while (mot !="exit"):
-        mot = input("Entrer un mot :")
-        print(f"Vous avez entré : {mot}")
+        mot = input()
         if (mot == "exit") :
             break
+        else :
+            print(f"Vous avez entré : {mot}")
 
 # Exercice 5
 

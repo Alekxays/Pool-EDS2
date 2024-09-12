@@ -5,6 +5,8 @@ import csv
 
 def create_series(*args) -> pd.Series:
     if all(isinstance(arg, int) for arg in args):
+        if len(args) == 0:
+            return pd.Series(dtype=int)
         return pd.Series(args)
     else:
         raise ValueError("All arguments must be of type int")
@@ -33,9 +35,9 @@ def native_csv_read(file: str) -> list[tuple]:
 
 def create_dataframe(products: list[str], quantities: list[int], prices: list[float]) -> pd.DataFrame:
     data = {
-        "Product": products,
-        "Quantity": quantities,
-        "Price": prices
+        "product": products,
+        "quantity": quantities,
+        "total_price": [q * p for q, p in zip(quantities, prices)]
     }
     df = pd.DataFrame(data)
 

@@ -8,9 +8,7 @@ def get_one_book() -> dict:
     url = "http://books.toscrape.com/"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
-
     first_book = soup.find('article', class_='product_pod')
-
     title = first_book.h3.a['title']
     rating_class = first_book.p['class'][1]
     rating_map = {
@@ -18,7 +16,6 @@ def get_one_book() -> dict:
     }
     rating = rating_map.get(rating_class, 0)
     price = float(first_book.select('p.price_color')[0].text[1:])
-
     return {
         'title': title,
         'rating': rating,
@@ -31,20 +28,16 @@ def get_one_book_complete() -> dict:
     base_url = "http://books.toscrape.com/"
     response = requests.get(base_url)
     soup = BeautifulSoup(response.content, 'html.parser')
-
     first_book = soup.find('article', class_='product_pod')
     book_page_url = base_url + first_book.h3.a['href']
-
     response = requests.get(book_page_url)
     book_soup = BeautifulSoup(response.content, 'html.parser')
-
     title = first_book.h3.a['title']
     rating_class = first_book.p['class'][1]
     rating_map = {'One': 1, 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5}
     rating = rating_map.get(rating_class, 0)
     price = float(first_book.select('p.price_color')[0].text[1:])
     description = book_soup.select_one('meta[name="description"]')['content'].strip()
-
     return {
         'title': title,
         'rating': rating,
@@ -59,7 +52,6 @@ def get_page_books(url: str = None) -> list:
         url = "http://books.toscrape.com/"
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
-
     books = []
     for book in soup.find_all('article', class_='product_pod'):
         title = book.h3.a['title']
@@ -72,7 +64,6 @@ def get_page_books(url: str = None) -> list:
         book_response = requests.get(book_page_url)
         book_soup = BeautifulSoup(book_response.content, 'html.parser')
         description = book_soup.select_one('meta[name="description"]')['content'].strip()
-        
         books.append({
             'title': title,
             'rating': rating,
@@ -89,18 +80,15 @@ def get_page_range(start: int, end: int, url: str = "http://books.toscrape.com/"
         page_url = f"{url}catalogue/page-{page_num}.html"
         books = get_page_books(page_url)
         all_books.extend(books)
-        
     return pd.DataFrame(all_books)
 
 # Exercice 5 :
 
 def get_category(category_url: str) -> pd.DataFrame:
     books = []
-    
     while category_url:
         response = requests.get(category_url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        
         for book in soup.find_all('article', class_='product_pod'):
             title = book.h3.a['title']
             rating_class = book.p['class'][1]
@@ -108,13 +96,11 @@ def get_category(category_url: str) -> pd.DataFrame:
             rating = rating_map.get(rating_class, 0)
             price = float(book.select('p.price_color')[0].text[1:])
             books.append({'title': title, 'rating': rating, 'price': price})
-        
         next_page = soup.find('li', class_='next')
         if next_page:
             category_url = category_url.rsplit('/', 1)[0] + '/' + next_page.a['href']
         else:
             category_url = None
-    
     return pd.DataFrame(books)
     
 
@@ -125,18 +111,14 @@ def get_all_categories(file: str) -> pd.DataFrame:
     response = requests.get(base_url)
     soup = BeautifulSoup(response.content, 'html.parser')
     category_links = soup.select("div.side_categories ul li ul li a")
-    
     all_books = []
-    
     for category_link in category_links:
         category_name = category_link.text.strip()
         category_url = base_url + category_link['href']
         category_df = get_category(category_url)
-        
         if not category_df.empty:
             category_df['category'] = category_name
             all_books.append(category_df)
-    
     if all_books:
         combined_df = pd.concat(all_books, ignore_index=True)
         combined_df.to_csv(file, index=False)
