@@ -13,23 +13,26 @@ def get_all_laureates(client:MongoClient) -> list:
 # Exercice 3 :
 
 def get_laureates_information(client: MongoClient) -> list[dict]:
-    return list(client["nobel"]["laureates"].find({}, {"firstname": 1, "surname": 1, "born": 1}))
+    return list(client["nobel"]["laureates"].find({}, {"_id": 0, "firstname": 1, "surname": 1, "born": 1}))
 
 def get_prize_categories(client: MongoClient) -> list[str]:
-    return list(client["nobel"]["laureates"].distinct("prizes.category"))
+    return list(client["nobel"]["prizes"].distinct("category"))
 
 # Exercice 4 :
 
 def get_category_laureates(client: MongoClient, category: str) -> list[dict]:
-    results = client["nobel"]["laureates"].find({"prizes.0.category": category}, {"_id": 0, "firstname": 1, "surname": 1, "category": 1})
+    results = client["nobel"]["laureates"].find(
+        {"prizes.category": category},
+        {"_id": 0, "firstname": 1, "surname": 1, "prizes": 1}
+    )
     laureates = []
     for result in results:
+        filtered_prizes = [prize for prize in result.get("prizes", []) if prize.get("category") == category]
         laureates.append({
             "firstname": result.get("firstname"),
             "surname": result.get("surname"),
-            "category": result.get("category")
+            "prizes": filtered_prizes
         })
-    
     return laureates
 
 def get_country_laureates(client: MongoClient, country: str) -> list[dict]:
@@ -50,7 +53,6 @@ def get_shared_prizes(client: MongoClient) -> list[dict]:
     pipeline = [
         {
             "$match": {
-                "laureates": {"$exists": True, "$ne": None}, 
                 "$expr": {"$gt": [{"$size": "$laureates"}, 1]}
             }
         },
@@ -63,7 +65,7 @@ def get_shared_prizes(client: MongoClient) -> list[dict]:
             }
         }
     ]
-    results = list(client["nobel"]["laureates"].aggregate(pipeline))
+    results = list(client["nobel"]["prizes"].aggregate(pipeline))
     return results
 
 def get_shared_prizes_common(client: MongoClient) -> list[dict]:
@@ -110,8 +112,7 @@ def get_laureates_information_sorted(client: MongoClient) -> list[dict]:
     laureates = list(results)
     sorted_laureates = sorted(
         laureates,
-        key=lambda x: (x.get("bornCountry", ""), x.get("born", "")),
-        reverse=True
+        key=lambda x: (x.get("born", ""), x.get("bornCountry", ""))
     )
     return sorted_laureates
 
