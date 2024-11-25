@@ -1,6 +1,6 @@
 # 🐍 Pool | EDS (Python)
 
-Welcome to my repository for the second-year pool at Epitech Digital School! 🎓
+Welcome to my repository for the second-year pool at Epitech! 🎓
 
 This repo contains all the exercises I submitted during the pool. It showcases my journey in learning and mastering Python programming concepts through a variety of challenges.
 
