@@ -1,4 +1,4 @@
-## 🐍 Pool | EDS (Python)
+# 🐍 Pool | EDS (Python)
 
 Welcome to my repository for the second-year pool at Epitech Digital School! 🎓
 
